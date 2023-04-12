@@ -1,5 +1,5 @@
+import numpy as np
 class State:
-    
     def _init_tab(self,init_tab_funct):
         self.tab = init_tab_funct()
     
@@ -29,11 +29,11 @@ class State:
 class AI:
 
     def __init__(self):
-        self.min_player=1
-        self.max_player=2
+        self.min_player=1 # noir
+        self.max_player=2 # blanc
 
 
-    def min_value(self,depth_max,state,utility_funct,action_funct,game_end_funct,alpha,beta,depth_cpt=0):
+    def min_value(self,depth_max,state,utility_funct,action_funct,game_end_funct,alpha=-np.inf,beta=np.inf,depth_cpt=0):
         new_depth = depth_cpt + 1
         if game_end_funct(state) or new_depth > depth_max:
             return utility_funct(state), state

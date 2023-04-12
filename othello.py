@@ -124,18 +124,12 @@ def end_funct(state):
     if new_state is None:
         return next(action_funct(state,2)) is None
 
+# Main
+# init
 state = State(init_tab)
 ia = AI()
-n_s = (next(action_funct(state,1)))
-print(utility_funct(n_s))
 
-def un(a):
-    a = 5
-    return a
-i = 1
-print(un(i))
-print(i)
-
-inf = 999999999999999
-v,next_move = ia.min_value(5,state,utility_funct,action_funct,end_funct,-inf,inf)
+# début de partie
+# 1er coups des noirs, noir = min
+v,next_move = ia.min_value(5,state,utility_funct,action_funct,end_funct)
 print(next_move)
