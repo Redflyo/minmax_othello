@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-
-import sys
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QWidget, QLabel, QMessageBox, QApplication, QMainWindow
+from PyQt5.QtWidgets import QWidget, QLabel, QMessageBox #, QApplication, QMainWindow
+from time import sleep
 
 # constantes de départ issues de l'image du plateau de jeu
 IMG_W, IMG_H = 791, 778
@@ -54,15 +53,16 @@ class Ui_MainWindow(object):
         choice.setWindowTitle("Choix des pions")
         choice.setText("Choisissez votre couleur (Noir commence) :")
         choice.setFont(self.lucida_font)
-        choice.addButton("Blanc", QMessageBox.YesRole)
-        choice.addButton("Noir", QMessageBox.NoRole)
-        reponse = "Blanc" if choice.exec() == 0 else "Noir"
-        print("reponse : ", reponse)
+        choice.addButton("Noir", QMessageBox.YesRole)
+        choice.addButton("Blanc", QMessageBox.NoRole)
+        self.couleur = True if choice.exec() == 0 else False
+        # print("reponse : ", self.couleur)
 
 
     def setupUi(self, MainWindow):
-        self.couleur = False
+        self.tour = True
         self.clicked_cells = []
+        self.clic_joueur = False
         self.lucida_14()
 
         MainWindow.setObjectName("MainWindow")
@@ -91,14 +91,19 @@ class Ui_MainWindow(object):
         Returns:
             None: l'objet est directement modifié
         """
+        for r in range(len(grille.tab)):
+            for c in range(len(grille.tab[r])):
+                if grille.tab[r][c] !=None : 
+                    self.get_piece(r, c, grille.tab[r][c])
         return 0
 
-    def get_piece(self, row, col):
+    def get_piece(self, row, col, clr):
         """Place une pièce sur la grille dans la cellule donnée en paramètre
 
         Args:
             row (int): indice de ligne
             col (int): indice de colonne
+            clr (int): indice de couleur
         """
         # Définition des coordonnées de positionnement pour la pièce
         new_x = int((XO+SQ_SIZE/2+col*(SQ_SIZE+BORDER))-PION_SIZE*0.5)
@@ -107,7 +112,7 @@ class Ui_MainWindow(object):
         self.label_piece = QLabel(self.centralwidget)
         self.label_piece.setGeometry(new_x, new_y, PION_SIZE, PION_SIZE)
         self.label_piece.setText("")
-        self.label_piece.setPixmap(QtGui.QPixmap("pion_blanc.png" if  self.couleur else "pion_noir.png")) 
+        self.label_piece.setPixmap(QtGui.QPixmap("pion_noir.png" if clr == 1 else "pion_blanc.png")) 
         self.label_piece.setObjectName("label_piece")
         self.label_piece.show()
 
@@ -127,24 +132,13 @@ class Ui_MainWindow(object):
         # Définition de la cellule cliquée   
         row = (y - YO)//(SQ_SIZE+BORDER) 
         col = (x - XO)//(SQ_SIZE+BORDER)
-        # print("row : ", row," col : ", col)
+        print("row : ", row," col : ", col)
 
         # Création de la nouvelle pièce à la bonne position
-        self.get_piece(row, col)
-        self.clicked_cells.append((row,col))
+        # self.get_piece(row, col, True if self.couleur else False)
+        if (row,col) in self.clicked_cells :
+            print("Coup impossible, veuillez essayer un autre coup.")
 
-        # inversino de la couleur pour le prochain tour
-        self.couleur = not  self.couleur
-        self.label_infos.setText("Blanc joue !" if  self.couleur else "Noir joue !")
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    MainWindow = QMainWindow()
-    gui = Ui_MainWindow()
-    gui.setupUi(MainWindow)
-
-    MainWindow.show()
-
-    sys.exit(app.exec_())
+        else :
+            self.clicked_cells.append((row,col))
+            self.clic_joueur = True
