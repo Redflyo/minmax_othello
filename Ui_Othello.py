@@ -136,9 +136,5 @@ class Ui_MainWindow(object):
 
         # Création de la nouvelle pièce à la bonne position
         # self.get_piece(row, col, True if self.couleur else False)
-        if (row,col) in self.clicked_cells :
-            print("Coup impossible, veuillez essayer un autre coup.")
-
-        else :
-            self.clicked_cells.append((row,col))
-            self.clic_joueur = True
+        self.clicked_cells.append((row,col))
+        self.clic_joueur = True
