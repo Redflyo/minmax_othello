@@ -7,14 +7,18 @@ import sys
 from time import sleep
 
 SIZE_TAB = 8
-NB_COUPS = 6
+NB_COUPS = 5
+
+POINT_SIDE = 2
+CORNER = 25
+SIDE = 8
 
 def init_tab():
     tab = [[None for i in range(SIZE_TAB)] for j in range(SIZE_TAB)]
-    (tab[3])[3] = 1
-    (tab[4])[4] = 1
-    (tab[3])[4] = 2
-    (tab[4])[3] = 2
+    (tab[3])[3] = 2
+    (tab[4])[4] = 2
+    (tab[3])[4] = 1
+    (tab[4])[3] = 1
     return tab
 
 def __hash__(self):
@@ -40,31 +44,41 @@ def utility_funct(state):
                 player_index = cell_value - 1
                 if i == 0:
                     if not border_memory[player_index][0][0]:
-                        local_score += cell_score * 5
+                        local_score += cell_score * SIDE
                         border_memory[player_index][0][0] = True
                     else:
-                        local_score += cell_score * 2
+                        local_score += cell_score * POINT_SIDE
+                    
+                    if j == 0:
+                        local_score += cell_score * CORNER
+                    elif j == SIZE_TAB - 1:
+                        local_score += cell_score * CORNER
 
                 if j == 0:
                     if not border_memory[player_index][0][1]:
-                        local_score += cell_score * 5
+                        local_score += cell_score * SIDE
                         border_memory[player_index][0][1] = True
                     else:
-                        local_score += cell_score * 2
+                        local_score += cell_score * POINT_SIDE
 
                 if i == SIZE_TAB-1:
                     if not border_memory[player_index][1][0]:
-                        local_score += cell_score * 5
+                        local_score += cell_score * SIDE
                         border_memory[player_index][1][0] = True
                     else:
-                        local_score += cell_score * 2
+                        local_score += cell_score * POINT_SIDE
+                    
+                    if j == 0:
+                        local_score += cell_score * CORNER
+                    elif j == SIZE_TAB - 1:
+                        local_score += cell_score * CORNER
 
                 if j == SIZE_TAB-1:
                     if not border_memory[player_index][1][1]:
-                        local_score += cell_score * 5
+                        local_score += cell_score * SIDE
                         border_memory[player_index][1][1] = True
                     else:
-                        local_score += cell_score * 2
+                        local_score += cell_score * POINT_SIDE
 
                 if local_score == 0:
                     local_score += cell_score
@@ -95,7 +109,8 @@ def add_token(state,x,y,player):
     for d in get_direction_possible():
         case_to_change_in_this_direction = []
         i=1
-        while i < SIZE_TAB and d[2]:
+        can_eat = False
+        while not(can_eat) and d[2]:
             cell_x = x+i*d[0]
             cell_y = y+i*d[1]
             cell_target = state.get_cell(cell_x, cell_y )   
@@ -103,7 +118,7 @@ def add_token(state,x,y,player):
                 case_to_change_in_this_direction.append((x+i*d[0],y+i*d[1]))
             else:
                 if cell_target == player and i > 1:
-                    i = SIZE_TAB
+                    can_eat = True
                 else:
                     d[2] = False
             i+=1
@@ -145,17 +160,66 @@ def end_funct(state):
 
 def human_play(state,x,y,player):
     if state.get_cell(x,y) is None:
+        print("boucle")
         states = list([n for n in action_funct(state,player)])
         for n in states:
+            print("value:",n.get_cell(x,y))
             if n.get_cell(x,y) == player:
                 print("one time")
                 return n
-        else:
-            print([n.get_cell(x,y) == player for n in action_funct(state,player)])
-        print("case none")
-    
+        if len(states) == 1:
+            print("normal")
+            return states[0]
+    [print(s) for s in states]
+    print("none:")
     return None
         
+
+def gameloop(state,ia,gui):
+        # début de partie
+    # print("state.tab :\n", state.tab)
+    gui.refresh_grille(state)
+    # 1er coups des noirs, noir = min
+    if gui.couleur is gui.tour:
+        gui.label_infos.setText("Humain joue les Noirs et commence !")
+    else :
+        gui.label_infos.setText("IA joue les Noirs et commence !")
+
+    while not end_funct(state):
+        new_state = None
+        if gui.couleur is gui.tour:
+            # il s'agit du tour du joueur humain
+            # print(state)
+            print("Human to play")
+            while new_state is None:
+                if next(action_funct(state,1 if gui.couleur else 2)) != state:
+                    while not gui.clic_joueur:
+                        QtCore.QCoreApplication.processEvents()
+                    gui.clic_joueur = False
+                        # print("done")
+                    new_state = human_play(state,gui.clicked_cells[-1][0],gui.clicked_cells[-1][1], 1 if gui.couleur else 2)
+                else:
+                    new_state = state
+
+        elif not gui.couleur:
+            print("IA Noir")
+            v,new_state = ia.min_value(NB_COUPS,state,utility_funct,action_funct,end_funct)
+            
+
+        else :
+            print("IA Blanc")
+            v,new_state = ia.max_value(NB_COUPS,state,utility_funct,action_funct,end_funct)
+
+        if not(new_state is None):
+            state = new_state
+            # inversion de qui joue le prochain coup
+            gui.tour = not gui.tour
+            print("refresh")
+            gui.refresh_grille(state)
+            gui.label_infos.setText("Noir joue !" if  gui.couleur and gui.tour else "Blanc joue !")
+        print("Current state:")
+        print(state)
+    print("end of the game")
 
 # Main
 if __name__ == "__main__":
@@ -169,47 +233,7 @@ if __name__ == "__main__":
     gui.setupUi(MainWindow)
     MainWindow.show()
 
-    # début de partie
-    # print("state.tab :\n", state.tab)
-    gui.refresh_grille(state)
-    # 1er coups des noirs, noir = min
-    if gui.couleur is gui.tour:
-        gui.label_infos.setText("Humain joue les Noirs et commence !")
-    else :
-        gui.label_infos.setText("IA joue les Noirs et commence !")
-
-    while not end_funct(state):
-        print(state)
-        new_state = None
-        if gui.couleur is gui.tour:
-            # il s'agit du tour du joueur humain
-            print('joueur')
-            # print(state)
-            while new_state is None:
-                while not gui.clic_joueur :
-                    QtCore.QCoreApplication.processEvents()
-                gui.clic_joueur = False
-                # print("done")
-                new_state = human_play(state,gui.clicked_cells[-1][0],gui.clicked_cells[-1][1], 1 if gui.couleur else 2)
-                print(new_state)
-
-        elif not gui.couleur:
-            print("IA Noir")
-            v,new_state = ia.min_value(NB_COUPS,state,utility_funct,action_funct,end_funct)
-
-        else :
-            print("IA Blanc")
-            v,new_state = ia.max_value(NB_COUPS,state,utility_funct,action_funct,end_funct)
-
-        if not(new_state is None):
-            state = new_state
-            # inversion de qui joue le prochain coup
-            gui.tour = not gui.tour
-            print("refresh")
-            gui.refresh_grille(state)
-            gui.label_infos.setText("Noir joue !" if  gui.couleur and gui.tour else "Blanc joue !")
-
-    print("end of the game")
+    gameloop(state,ia,gui)
     
 
     sys.exit(app.exec_())
