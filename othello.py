@@ -10,9 +10,9 @@ SIZE_TAB = 8
 NB_COUPS = 5
 
 POINT_SIDE = 2
-CORNER = 35
-SIDE = 7
-NONE_CASE_BETWEEN_ON_SIDE=5
+CORNER = 20
+SIDE = 5
+NONE_CASE_BETWEEN_ON_SIDE=3
 
 def init_tab():
     tab = [[None for i in range(SIZE_TAB)] for j in range(SIZE_TAB)]
@@ -87,22 +87,38 @@ def utility_funct(state):
                     local_score += cell_score
                 score += local_score
 
-        player1_none_case_between = False
-        player2_none_case_between = False
+        local_score=0
         for offset_x in [0,SIZE_TAB-1]:
             for offset_y in [0,SIZE_TAB-1]:
+                x_player1_none_case_between = False
+                x_player2_none_case_between = False
+                y_player1_none_case_between = False
+                y_player2_none_case_between = False
                 for i in range(SIZE_TAB-1):
-                    if state.get_cell(i+offset_x,offset_y) == state.get_cell(i+offset_x+2,offset_y) and state.get_cell(i+offset_x+1,offset_y) is None:
-                        if state.get_cell(i+offset_x,offset_y) == 1:
-                            player1_none_case_between = not player1_none_case_between
-                        elif state.get_cell(i+offset_x,offset_y) == 2:
-                            player2_none_case_between = not player2_none_case_between
+                    if state.get_cell(i,offset_y) == state.get_cell(i+2,offset_y) and state.get_cell(i+1,offset_y) is None:
+                        if state.get_cell(i,offset_y) == 1:
+                            x_player1_none_case_between = not x_player1_none_case_between
+                        elif state.get_cell(i,offset_y) == 2:
+                            x_player2_none_case_between = not x_player2_none_case_between
+
+                    if state.get_cell(offset_x,i) == state.get_cell(offset_x,i+2) and state.get_cell(offset_x,i+1) is None:
+                        if state.get_cell(offset_x,i) == 1:
+                            y_player1_none_case_between = not y_player1_none_case_between
+                        elif state.get_cell(offset_x,i) == 2:
+                            y_player2_none_case_between = not y_player2_none_case_between
 
 
-                if player1_none_case_between:
-                    score += get_score(2) * NONE_CASE_BETWEEN_ON_SIDE
-                if player2_none_case_between:
-                    score += get_score(1) * NONE_CASE_BETWEEN_ON_SIDE      
+                if y_player1_none_case_between:
+                    local_score += get_score(2) * NONE_CASE_BETWEEN_ON_SIDE
+                if y_player2_none_case_between:
+                    local_score += get_score(1) * NONE_CASE_BETWEEN_ON_SIDE
+
+                if x_player1_none_case_between:
+                    local_score += get_score(2) * NONE_CASE_BETWEEN_ON_SIDE
+                if x_player2_none_case_between:
+                    local_score += get_score(1) * NONE_CASE_BETWEEN_ON_SIDE
+    score+=local_score
+    print(score)
     return score
             
 
