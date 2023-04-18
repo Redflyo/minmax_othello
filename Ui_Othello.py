@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QWidget, QLabel, QMessageBox #, QApplication, QMainWindow
-from time import sleep
+from PyQt5.QtWidgets import QWidget, QLabel, QMessageBox
 
 # constantes de départ issues de l'image du plateau de jeu
 IMG_W, IMG_H = 791, 778
@@ -28,7 +27,7 @@ class Ui_MainWindow(object):
 
     def get_label_infos(self):
         label_infos = QLabel(self.centralwidget)
-        label_infos.setGeometry(203, 30, 450, 25) # QtCore.QRect
+        label_infos.setGeometry(203, 0, 450, 75)
         label_infos.setFont(self.lucida_font)
         label_infos.setScaledContents(False)
         label_infos.setAlignment(QtCore.Qt.AlignCenter)

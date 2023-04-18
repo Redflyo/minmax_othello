@@ -4,7 +4,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import Ui_Othello
 import sys
-from time import sleep
+from time import time
 
 SIZE_TAB = 8
 NB_COUPS = 5
@@ -209,18 +209,24 @@ def human_play(state,x,y,player):
     [print(s) for s in states]
     print("none:")
     return None
+
+def qt_wait(delay : int):
+    loop = QtCore.QEventLoop()
+    QtCore.QTimer.singleShot(delay*1000, loop.quit)
+    loop.exec_()
         
 
 def gameloop(state,ia,gui):
-        # début de partie
-    # print("state.tab :\n", state.tab)
     gui.refresh_grille(state)
-    # 1er coups des noirs, noir = min
+
     if gui.couleur is gui.tour:
         gui.label_infos.setText("Humain joue les Noirs et commence !")
+
     else :
         gui.label_infos.setText("IA joue les Noirs et commence !")
 
+    chrono = 0
+    tour = 1
     while not end_funct(state):
         new_state = None
         if gui.couleur is gui.tour:
@@ -238,13 +244,21 @@ def gameloop(state,ia,gui):
                     new_state = state
 
         elif not gui.couleur:
+            qt_wait(1)
             print("IA Noir")
-            v,new_state = ia.min_value(NB_COUPS,state,utility_funct,action_funct,end_funct)
+            start = time()
+            _,new_state = ia.min_value(NB_COUPS,state,utility_funct,action_funct,end_funct)
+            chrono += time()-start
+            # gui.label_temps.setText(f"Temps IA : {chrono:.3f}s\nTest")
             
 
         else :
+            qt_wait(1)
             print("IA Blanc")
-            v,new_state = ia.max_value(NB_COUPS,state,utility_funct,action_funct,end_funct)
+            start = time()
+            _,new_state = ia.max_value(NB_COUPS,state,utility_funct,action_funct,end_funct)
+            chrono += time()-start
+            # gui.label_temps.setText(f"Temps IA : {chrono:.3f}s\nTest")
 
         if not(new_state is None):
             state = new_state
@@ -252,7 +266,9 @@ def gameloop(state,ia,gui):
             gui.tour = not gui.tour
             print("refresh")
             gui.refresh_grille(state)
-            gui.label_infos.setText("Noir joue !" if  gui.couleur and gui.tour else "Blanc joue !")
+            msg = f"\nTour n°{tour}\nTemps IA : {chrono:.3f}s"
+            gui.label_infos.setText(f"Noir joue !{msg}" if  gui.couleur and gui.tour else f"Blanc joue !{msg}")
+            tour += 1
         print("Current state:")
         print(state)
     print("end of the game")
