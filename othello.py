@@ -10,8 +10,9 @@ SIZE_TAB = 8
 NB_COUPS = 5
 
 POINT_SIDE = 2
-CORNER = 25
-SIDE = 8
+CORNER = 35
+SIDE = 7
+NONE_CASE_BETWEEN_ON_SIDE=5
 
 def init_tab():
     tab = [[None for i in range(SIZE_TAB)] for j in range(SIZE_TAB)]
@@ -35,7 +36,9 @@ def get_score(player):
 def utility_funct(state):
     score = 0
     border_memory = [[[False,False],[False,False]],[[False,False],[False,False]]]
-    for i in range(SIZE_TAB):
+
+    
+    for i in range(SIZE_TAB): 
         for j in range(SIZE_TAB):
             cell_value = state.get_cell(i,j)
             if cell_value is not None:
@@ -82,7 +85,24 @@ def utility_funct(state):
 
                 if local_score == 0:
                     local_score += cell_score
-                score += local_score          
+                score += local_score
+
+        player1_none_case_between = False
+        player2_none_case_between = False
+        for offset_x in [0,SIZE_TAB-1]:
+            for offset_y in [0,SIZE_TAB-1]:
+                for i in range(SIZE_TAB-1):
+                    if state.get_cell(i+offset_x,offset_y) == state.get_cell(i+offset_x+2,offset_y) and state.get_cell(i+offset_x+1,offset_y) is None:
+                        if state.get_cell(i+offset_x,offset_y) == 1:
+                            player1_none_case_between = not player1_none_case_between
+                        elif state.get_cell(i+offset_x,offset_y) == 2:
+                            player2_none_case_between = not player2_none_case_between
+
+
+                if player1_none_case_between:
+                    score += get_score(2) * NONE_CASE_BETWEEN_ON_SIDE
+                if player2_none_case_between:
+                    score += get_score(1) * NONE_CASE_BETWEEN_ON_SIDE      
     return score
             
 
