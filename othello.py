@@ -132,7 +132,6 @@ def utility_funct(state):
                     local_score += get_score(1) * NONE_CASE_BETWEEN_ON_SIDE
     score+=local_score
     return score
-            
 
 
 def get_direction_possible():
@@ -142,6 +141,7 @@ def get_direction_possible():
         List[Tuple[int,int,bool]]: List of Direction vector
     """
     return [[i,j,True] for i in range(-1,2,1) for j in range(-1,2,1) if not(i == j and i == 0) ]
+
 
 def case_can_be_play(coordinate,state,player):
     """ Check if a player can play at "coordinate" in the "state"
@@ -166,6 +166,7 @@ def case_can_be_play(coordinate,state,player):
                 else:
                     d[2] = cell_target not in (player,None)
     return False
+
 
 def add_token(state,x,y,player):
     """ player in the state play at the coordinate x and y
@@ -264,15 +265,15 @@ def human_play(state,x,y,player):
         State: Return the next move when the human played
     """
     if state.get_cell(x,y) is None:
-        print("boucle")
+        # print("boucle")
         states = list([n for n in action_funct(state,player)])
         for n in states:
-            print("value:",n.get_cell(x,y))
+            # print("value:",n.get_cell(x,y))
             if n.get_cell(x,y) == player:
-                print("one time")
+                # print("one time")
                 return n
         if len(states) == 1:
-            print("normal")
+            # print("normal")
             return states[0]
     return None
 
@@ -342,7 +343,7 @@ def gameloop(state : State, ia : AI, gui : Ui_Othello.Ui_MainWindow):
             state = new_state
             # inversion de qui joue le prochain coup
             gui.tour = not gui.tour
-            print("refresh")
+            # print("refresh")
             gui.refresh_grille(state)
             msg = f"\nTour n°{tour}\nTemps IA : {chrono:.3f}s"
             gui.label_infos.setText(f"Noir joue !{msg}" if  gui.couleur and gui.tour else f"Blanc joue !{msg}")

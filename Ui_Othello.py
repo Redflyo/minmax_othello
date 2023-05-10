@@ -119,7 +119,7 @@ class Ui_MainWindow(object):
         # Définition des coordonnées de positionnement pour la pièce
         new_x = int((XO+SQ_SIZE/2+col*(SQ_SIZE+BORDER))-PION_SIZE*0.5)
         new_y = int((YO+SQ_SIZE/2+row*(SQ_SIZE+BORDER))+PION_SIZE*0.45)
-        # print("new_x : ", new_x," new_y : ", new_y)
+        print("ligne : ", new_x," colonne : ", new_y, " couleur : ", "noir" if clr == 1 else "blanc")
         self.label_piece = QLabel(self.centralwidget)
         self.label_piece.setGeometry(new_x, new_y, PION_SIZE, PION_SIZE)
         self.label_piece.setText("")
@@ -143,7 +143,7 @@ class Ui_MainWindow(object):
         # Définition de la cellule cliquée   
         row = (y - YO)//(SQ_SIZE+BORDER) 
         col = (x - XO)//(SQ_SIZE+BORDER)
-        print("row : ", row," col : ", col)
+        # print("row : ", row," col : ", col)
 
         # Création de la nouvelle pièce à la bonne position
         # self.get_piece(row, col, True if self.couleur else False)
