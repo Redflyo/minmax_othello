@@ -22,18 +22,31 @@ def init_tab():
     (tab[4])[3] = 1
     return tab
 
-def __hash__(self):
-    return hash(self.__str__())
-
 def get_score(player):
+    """Transform id Player in his associated score
+
+    Args:
+        player (int): Id Player (min Player = 1 and  Max Player = 2)
+
+    Returns:
+        int: Score 1 or -1
+    """
+    score = 0
     if player==1:
-        return -1
+        score = -1
     elif player==2:
-        return 1
-    else:
-        return 0
+        score = 1
+    return score
 
 def utility_funct(state):
+    """Return score of the current State
+
+    Args:
+        state (State): State analyzed
+
+    Returns:
+        int: Return  the corresponding score
+    """
     score = 0
     border_memory = [[[False,False],[False,False]],[[False,False],[False,False]]]
 
@@ -118,15 +131,29 @@ def utility_funct(state):
                 if x_player2_none_case_between:
                     local_score += get_score(1) * NONE_CASE_BETWEEN_ON_SIDE
     score+=local_score
-    print(score)
     return score
             
 
 
 def get_direction_possible():
+    """Generate list of direction vector and if it can be reach
+
+    Returns:
+        List[Tuple[int,int,bool]]: List of Direction vector
+    """
     return [[i,j,True] for i in range(-1,2,1) for j in range(-1,2,1) if not(i == j and i == 0) ]
 
 def case_can_be_play(coordinate,state,player):
+    """ Check if a player can play at "coordinate" in the "state"
+
+    Args:
+        coordinate (Tuple[int,int]): x and Y of the move
+        state (State): State tested
+        player (int): Id Player
+
+    Returns:
+        bool: True if he can play at this coordinate
+    """
     x,y = coordinate
     direction_possible = get_direction_possible()
     for i in range(1,SIZE_TAB):        
@@ -141,6 +168,17 @@ def case_can_be_play(coordinate,state,player):
     return False
 
 def add_token(state,x,y,player):
+    """ player in the state play at the coordinate x and y
+
+    Args:
+        state (State): State where is the mvoe is made
+        x (int): Coordinate X
+        y (int): Coordinate Y
+        player (int): Id Player
+
+    Returns:
+        State: New State
+    """
     case_to_change = []
     for d in get_direction_possible():
         case_to_change_in_this_direction = []
@@ -172,7 +210,16 @@ def add_token(state,x,y,player):
     return state
 
 
-def action_funct(state,player):
+def action_funct(state:State,player:int):
+    """Create a generator of all the new State than the player can do
+
+    Args:
+        state (State): Current state
+        player (int): Id Player
+
+    Yields:
+        State: State possible
+    """
 
     all_none_case = [(x,y) for x in range(SIZE_TAB) for y in range(SIZE_TAB) if state.get_cell(x,y) is None]
     new_move = False
@@ -187,7 +234,15 @@ def action_funct(state,player):
     if not new_move:
         yield state
 
-def end_funct(state):
+def end_funct(state:State):
+    """Check if the game is finnished
+
+    Args:
+        state (State): State Tested
+
+    Returns:
+        bool: True if game is finnished
+    """
     new_state = next(action_funct(state,1)) == state
     if new_state :
         return next(action_funct(state,2)) == state
@@ -195,6 +250,19 @@ def end_funct(state):
         return False
 
 def human_play(state,x,y,player):
+    """
+
+    Test when the Human played
+
+    Args:
+        state (State): Current State
+        x (int): X coordinate where the human want to play
+        y (int): Y coordinate where the human want to play
+        player (int): ID of the human player
+
+    Returns:
+        State: Return the next move when the human played
+    """
     if state.get_cell(x,y) is None:
         print("boucle")
         states = list([n for n in action_funct(state,player)])
@@ -206,8 +274,6 @@ def human_play(state,x,y,player):
         if len(states) == 1:
             print("normal")
             return states[0]
-    [print(s) for s in states]
-    print("none:")
     return None
 
 def qt_wait(delay : int):
@@ -269,8 +335,22 @@ def gameloop(state,ia,gui):
             msg = f"\nTour n°{tour}\nTemps IA : {chrono:.3f}s"
             gui.label_infos.setText(f"Noir joue !{msg}" if  gui.couleur and gui.tour else f"Blanc joue !{msg}")
             tour += 1
-        print("Current state:")
-        print(state)
+
+    score_white=0
+    score_black=0
+    for line in state.tab:
+        for id in line:
+            if id == 2:
+                score_white +=1
+            elif id == 1:
+                score_black +=1
+
+    if score_white > score_black:
+        gui.label_infos.setText(f"Les Blancs sont victorieux ! {score_white}-{score_black}")
+    elif score_black > score_white:
+        gui.label_infos.setText(f"Les Noirs sont victorieux ! {score_white}-{score_black}")
+    else:
+        gui.label_infos.setText(f"Égalité ! {score_white}-{score_black}")
     print("end of the game")
 
 # Main
