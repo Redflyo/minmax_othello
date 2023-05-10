@@ -1,14 +1,23 @@
 import numpy as np
 class State:
-    def _init_tab(self,init_tab_funct):
+    def __init__(self,init_tab_funct):
+        """Generate the starter with the function init_tab 
+
+        Args:
+            init_tab_funct (func): This function must return the First State
+        """
         self.tab = init_tab_funct()
-    
-
-    def __init__(self,size_tab):
-        self._init_tab(size_tab)
-
 
     def get_cell(self,x,y):
+        """Return the value contain at the x,y cell
+
+        Args:
+            x (int): X coordinate
+            y (int): Y coordinate
+
+        Returns:
+            Optionnal[int]: Value containing
+        """
         if (x < len(self.tab) and x >= 0) and (y < len(self.tab) and y >= 0):
             return (self.tab[x])[y]
         else:
@@ -16,10 +25,22 @@ class State:
         
 
     def set_cell(self,x,y,value):
+        """Put value in the cell at the coordinate x,y
+
+        Args:
+            x (int): X coordinate
+            y (int): Y coordinate
+            value (int): Value of the cell
+        """
         (self.tab[x])[y] = value
 
 
     def __str__(self):
+        """Define the State in string
+
+        Returns:
+            string: String representing the current State
+        """
         result = ""
         for t in self.tab:
             result += ("_"*(len(self.tab)*2+1)) + "\n"
@@ -42,13 +63,13 @@ class AI:
         """le joueur min est le joueur noir, il commence toujours la partie.
 
         Args:
-            depth_max (_type_): _description_
-            state (_type_): _description_
-            utility_funct (_type_): _description_
-            action_funct (_type_): _description_
-            game_end_funct (_type_): _description_
-            alpha (_type_, optional): _description_. Defaults to -np.inf.
-            beta (_type_, optional): _description_. Defaults to np.inf.
+            depth_max (int): Depth max 
+            state (State): State tested
+            utility_funct (func): Return the Score of the State
+            action_funct (func): Yield all the next State possible for a Player
+            game_end_funct (func): Check if the game is finnished
+            alpha (int): current alpha. Defaults to -np.inf.
+            beta (int): current beta. Defaults to np.inf.
             depth_cpt (int, optional): _description_. Defaults to 0.
 
         Returns:
@@ -77,17 +98,17 @@ class AI:
         """le joueur max est le joueur blanc, il joue après le Noir.
 
         Args:
-            depth_max (_type_): _description_
-            state (_type_): _description_
-            utility_funct (_type_): _description_
-            action_funct (_type_): _description_
-            game_end_funct (_type_): _description_
-            alpha (_type_): _description_
-            beta (_type_): _description_
+            depth_max (int): Depth max 
+            state (State): State tested
+            utility_funct (func): Return the Score of the State
+            action_funct (func): Yield all the next State possible for a Player
+            game_end_funct (func): Check if the game is finnished
+            alpha (int): current alpha. Defaults to -np.inf.
+            beta (int): current beta. Defaults to np.inf.
             depth_cpt (int, optional): _description_. Defaults to 0.
 
         Returns:
-            _type_: _description_
+            Tuple[int,State]: Return the score associate with the better new State choosen by the  max Player
         """
         new_depth = depth_cpt + 1
         if game_end_funct(state) or new_depth > depth_max:
