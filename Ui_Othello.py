@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QWidget, QLabel, QMessageBox
+from PyQt5.QtWidgets import QWidget, QLabel, QMessageBox, QMainWindow
 
 # constantes de départ issues de l'image du plateau de jeu
 IMG_W, IMG_H = 791, 778
@@ -12,7 +12,12 @@ BORDER = 5
 SQ_SIZE = 86
 
 class Ui_MainWindow(object):
+    """Classe de définition de l'interface graphique
+    """
+    
     def lucida_14(self):
+        """Définition de la police de caractère du logiciel
+        """
         lucida_font = QtGui.QFont()
         lucida_font.setFamily("Lucida Sans Unicode")
         lucida_font.setPointSize(14)
@@ -26,6 +31,8 @@ class Ui_MainWindow(object):
 
 
     def get_label_infos(self):
+        """Créé un label texte permettant d'afficher les information de al partie en cours
+        """
         label_infos = QLabel(self.centralwidget)
         label_infos.setGeometry(203, 0, 450, 75)
         label_infos.setFont(self.lucida_font)
@@ -38,6 +45,8 @@ class Ui_MainWindow(object):
 
 
     def get_label_grille(self):
+        """Créé un label image qui affiche al grille de jeu
+        """
         label_grille = QLabel(self.centralwidget)
         label_grille.setGeometry(0, WIN_H-IMG_H, IMG_W, IMG_H)
         label_grille.setText("")
@@ -48,6 +57,8 @@ class Ui_MainWindow(object):
 
 
     def popup_choix_couleur(self):
+        """Affiche un popup permettant de choisir la couleur du joueur
+        """
         choice = QMessageBox()
         choice.setWindowTitle("Choix des pions")
         choice.setText("Choisissez votre couleur (Noir commence) :")
@@ -58,7 +69,12 @@ class Ui_MainWindow(object):
         # print("reponse : ", self.couleur)
 
 
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow : QMainWindow):
+        """Mise en place de l'interface graphique PyQt5
+
+        Args:
+            MainWindow (QMainWindow): objet PyQt5.QtWidgets.MainWindow()
+        """
         self.tour = True
         self.clicked_cells = []
         self.clic_joueur = False
@@ -81,23 +97,19 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 
-    def refresh_grille(self, grille):
-        """raffraichit l'affichage de la double liste à chaque fin de tour
+    def refresh_grille(self, grille : list):
+        """Raffraichit l'affichage de la double liste à chaque fin de tour
 
         Args:
-            grille (list): liste 2D à lire 
-
-        Returns:
-            None: l'objet est directement modifié
+            grille (list): liste 2D à lire pour affihcer les pièces correspondantes
         """
         for r in range(len(grille.tab)):
             for c in range(len(grille.tab[r])):
                 if grille.tab[r][c] !=None : 
                     self.get_piece(r, c, grille.tab[r][c])
-        return 0
 
-    def get_piece(self, row, col, clr):
-        """Place une pièce sur la grille dans la cellule donnée en paramètre
+    def get_piece(self, row : int, col : int, clr : int):
+        """Affiche une pièce de couleur donnée sur la grille dans la cellule donnée en paramètre
 
         Args:
             row (int): indice de ligne
@@ -117,7 +129,7 @@ class Ui_MainWindow(object):
 
 
     def placer_pion(self, clic):
-        """Conversion des coordonnées du clic en position de grille 1A etc...
+        """Conversion des coordonnées du clic en cellule de grille "1A" "5C" etc afin que tout clic dans une cellule soit défini au centre de cette cellule.
 
         Args:
             clic (mousePressEvent): évènement du clic, contient la position en pixels.

@@ -211,12 +211,24 @@ def human_play(state,x,y,player):
     return None
 
 def qt_wait(delay : int):
+    """Permet de laisser un délai qui permet de voir les coups de l'IA
+
+    Args:
+        delay (int): délai en secondes
+    """
     loop = QtCore.QEventLoop()
     QtCore.QTimer.singleShot(delay*1000, loop.quit)
     loop.exec_()
         
 
-def gameloop(state,ia,gui):
+def gameloop(state : State, ia : AI, gui : Ui_Othello.Ui_MainWindow):
+    """Boucle principale de jeu, alterne entre les joueurs, rafraichit l'affichage et les informations, calule les temps de jeu.
+
+    Args:
+        state (State): état initial du plateau
+        ia (AI): framework minmax
+        gui (Ui_Othello.Ui_MainWindow): objet de l'interface graphique
+    """
     gui.refresh_grille(state)
 
     if gui.couleur is gui.tour:
@@ -273,19 +285,20 @@ def gameloop(state,ia,gui):
         print(state)
     print("end of the game")
 
-# Main
 if __name__ == "__main__":
-    # init
+    # minmax init
     state = State(init_tab)
     ia = AI()
 
+    # UI init
     app = QApplication(sys.argv)
     MainWindow = QMainWindow()
     gui = Ui_Othello.Ui_MainWindow()
     gui.setupUi(MainWindow)
     MainWindow.show()
 
+    # Lancement du jeu
     gameloop(state,ia,gui)
     
-
+    # Sortie de l'application graphique
     sys.exit(app.exec_())

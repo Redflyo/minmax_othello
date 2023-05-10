@@ -6,6 +6,7 @@ import Ui_Othello
 import sys
 from time import sleep
 import othello
+
 def t():
     state = [[None for i in range(8)] for j in range(8)]
     state[0] = [2,2,2,2,2,2,2,2]
